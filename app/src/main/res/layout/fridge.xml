@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:text="Ψυγεία"
         android:textSize="30sp"
-        android:textColor="@color/orange"
+        android:textColor="@color/stealblue"
         app:layout_constraintTop_toBottomOf="@+id/titleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
