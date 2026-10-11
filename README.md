@@ -1,243 +1,141 @@
 # I-HUB
 
-## Overview
+**I-HUB** is a private Android application for supermarket employees. It
+provides a shared product lookup tool and helps the Customer Service
+department send product requests to the department responsible for
+fulfilling them.
 
-**I-HUB** is a small online Android helper application designed for supermarket employees.
+I-HUB has its **own online database**. It does not replace, connect to,
+or require access to the supermarket's proprietary software or database.
 
-The purpose of I-HUB is to make communication between departments easier when employees need products for customer orders.
+## Core Features
 
-I-HUB does **not** replace or access the supermarket's existing proprietary software or database.
+### 1. Shared Product Database and Lookup
 
-The application will have its own product database and its own request system.
+Product lookup is a core feature of I-HUB and must be available in
+**every department**.
 
----
+-   All departments use the same central product database.
+-   Employees can search for a product using its product code.
+-   The result displays the product description and a link to its online
+    product page.
+-   Product lookup remains easily accessible after an employee selects a
+    department.
+-   Product data can initially be imported from a CSV file.
 
-# Main Idea
+Example CSV structure:
 
-The main departments are:
+  Κωδικός   Περιγραφή          URL
+  --------- ------------------ -----------------------------
+  1273252   Καρπούζι Εγχώριο   https://example.com/product
 
-1. **ΕΞΥΠΗΡΕΤΗΣΗ**
-2. **ΑΠΟΘΗΚΗ**
-3. **ΜΑΝΑΒΙΚΟ**
-4. **ΨΥΓΕΙΟ**
+The example URL is illustrative; actual product URLs will be imported
+with the product data.
 
-The **ΕΞΥΠΗΡΕΤΗΣΗ** department creates requests.
+### 2. Department-Based Requests
 
-The other departments receive and execute requests assigned specifically to them.
+I-HUB supports four departments:
 
-For example:
+-   **ΕΞΥΠΗΡΕΤΗΣΗ**
+-   **ΑΠΟΘΗΚΗ**
+-   **ΜΑΝΑΒΙΚΟ**
+-   **ΨΥΓΕΙΟ**
 
-> Maria works in ΕΞΥΠΗΡΕΤΗΣΗ.
+Customer Service creates requests and selects the destination
+department. The destination department's employees can view and process
+those requests.
 
-She needs:
-
-* 2 × Καρπούζι Εγχώριο → ΜΑΝΑΒΙΚΟ
-* 1 × product from the warehouse → ΑΠΟΘΗΚΗ
-
-These are two separate requests.
-
-The ΜΑΝΑΒΙΚΟ employees should only see the request assigned to ΜΑΝΑΒΙΚΟ.
-
-The ΑΠΟΘΗΚΗ employees should only see the request assigned to ΑΠΟΘΗΚΗ.
-
----
-
-# Technology
-
-## Android
-
-* Android Studio
-* Java
-* Android Views
-* XML layouts
-* AndroidX / AppCompat
-
-## Backend
-
-* Supabase
-* PostgreSQL
-* Supabase Authentication
-* Supabase Storage
-
-## Product Data
-
-Product data can initially be imported from a CSV file.
+Each request is assigned to **one destination department**. If products
+are needed from different departments, they are created as separate
+requests.
 
 Example:
 
-| Κωδικός | Περιγραφή        | URL         |
-| ------- | ---------------- | ----------- |
-| 1273252 | Καρπούζι Εγχώριο | product URL |
+-   2 × Καρπούζι Εγχώριο → ΜΑΝΑΒΙΚΟ
+-   1 × product from the warehouse → ΑΠΟΘΗΚΗ
 
----
+Employees in each destination department should only see requests
+assigned to that department, subject to any authorized administrative
+access.
 
-# Distribution
+### 3. Employee Accounts and Department Selection
 
-I-HUB is intended for **private distribution**.
+An employee has one account and one consistent username across I-HUB.
+The employee can choose the department they are currently working in
+after logging in and can switch departments when their work changes.
 
-It will not initially be published on Google Play Store.
+Department selection does **not** create a new account or change the
+employee's identity.
 
-The application will eventually have its own update mechanism.
+The system must retain accountability across department changes: actions
+should be associated with the employee, the department in which the
+action occurred, and the time of the action. These rules must be
+enforced by the backend/database, not only by the app interface.
 
-Possible architecture:
+## Registration and Account Approval
 
-```text
-I-HUB APK
-   |
-   v
-Supabase Storage
-   |
-   v
-New APK version
-```
+### Registration
 
-The application can check whether a newer version exists and notify the user.
+The registration screen collects:
 
-Android will still require the appropriate user permission/confirmation when installing an APK from outside Google Play.
+-   10-digit registration code
+-   Username
+-   Email
+-   Password
+-   Password confirmation
 
----
+There is no department selection during registration.
 
-# Authentication
+### Registration Codes
 
-Users register with:
+An administrator manages a set of permanent 10-digit registration-code
+records.
 
-* Username
-* Password
-* Confirm password
-* Email
-* Registration code
+-   Each available code can authorize the creation of one account at a
+    time.
+-   A code can be assigned to only one active employee account at a
+    time.
+-   The code record itself is permanent: it must not be edited or
+    deleted.
+-   When an employee leaves, an administrator can deactivate/delete that
+    employee's account and release the code for reuse.
+-   Reusing a code must create a **new internal account identity**. It
+    must not merge the new employee with the previous employee's
+    activity history.
 
-There is **no department selection during registration**.
+The registration code authorizes registration. It is not the employee's
+identity and does not determine their department.
 
-Passwords will be handled by **Supabase Authentication** and will not be stored as plain text by I-HUB.
+### Approval
 
-The email will be used for account recovery.
+New registrations remain **pending** until approved by an administrator.
+Pending accounts cannot log in or use the application.
 
-Users will eventually be able to:
+After approval, employees sign in with their **username and password**.
 
-* Change password
-* Recover their account
-* Delete their own account
-* Log out
+Passwords must be handled securely by Supabase Authentication. I-HUB
+must never store plaintext passwords.
 
----
+Because Supabase Authentication normally uses email-based sign-in,
+username-based login must be implemented through a secure backend flow.
+It must not expose account lookup information or store passwords in the
+application database.
 
-# Registration Code
+## Request Workflow
 
-The registration code prevents random people who obtain the APK from creating accounts.
+A request should record, at minimum:
 
-Initial version:
-
-```text
-One valid registration code
-```
-
-Future possibilities:
-
-* One-time registration codes
-* Expiration dates
-* Disabled codes
-* Multiple codes
-* Admin-controlled codes
-
----
-
-# Department Selection
-
-A user's department is selected **after login**.
-
-This is intentional because an employee may work in different departments on different days or shifts.
-
-Example:
-
-```text
-Login
-  ↓
-Department Selection
-  ↓
-ΕΞΥΠΗΡΕΤΗΣΗ
-ΑΠΟΘΗΚΗ
-ΜΑΝΑΒΙΚΟ
-ΨΥΓΕΙΟ
-```
-
-The selected department determines what the employee can do during that session.
-
----
-
-# Department Permissions
-
-## ΕΞΥΠΗΡΕΤΗΣΗ
-
-Can:
-
-* Search products
-* Create requests
-* Select the destination department
-* View requests it created
-* See the employee who claimed/executed a request
-* Complete/delete its own requests where permitted
-
-Cannot:
-
-* Create requests as ΑΠΟΘΗΚΗ
-* Create requests as ΜΑΝΑΒΙΚΟ
-* Create requests as ΨΥΓΕΙΟ
-
----
-
-## ΑΠΟΘΗΚΗ
-
-Can:
-
-* View requests assigned to ΑΠΟΘΗΚΗ
-* Claim a request
-* Execute the request
-* Complete the request
-
-Cannot:
-
-* Create new requests
-
----
-
-## ΜΑΝΑΒΙΚΟ
-
-Can:
-
-* View requests assigned to ΜΑΝΑΒΙΚΟ
-* Claim a request
-* Execute the request
-* Complete the request
-
-Cannot:
-
-* Create new requests
-
----
-
-## ΨΥΓΕΙΟ
-
-Can:
-
-* View requests assigned to ΨΥΓΕΙΟ
-* Claim a request
-* Execute the request
-* Complete the request
-
-Cannot:
-
-* Create new requests
-
----
-
-# Request System
-
-Each request belongs to **one destination department**.
+-   Request creator
+-   Destination department
+-   Products and quantities
+-   Current status
+-   Employee who claimed the request, if any
+-   Employee who completed the request, if any
+-   Creation, claim, and completion timestamps
 
 Example:
 
-```text
+``` text
 Αίτημα #123
 
 Από: Maria
@@ -250,116 +148,107 @@ Example:
 Κατάσταση: ΝΕΟ
 ```
 
-An employee in ΜΑΝΑΒΙΚΟ can claim it.
+When an eligible employee claims a request, the backend must ensure that
+**only one employee can claim it**. This must be an atomic,
+server-enforced operation to prevent two employees from claiming the
+same request simultaneously.
 
-After claiming:
+The system should preserve request history and record who performed each
+important action.
 
-```text
-Από: Maria
-Προς: ΜΑΝΑΒΙΚΟ
+## Department Capabilities
 
-Αναλήφθηκε από: Kostas
+### ΕΞΥΠΗΡΕΤΗΣΗ
 
-[ΟΛΟΚΛΗΡΩΣΗ]
-```
+-   Search the shared product database.
+-   Create requests.
+-   Select a destination department for each request.
+-   View requests it created and their statuses.
+-   See who claimed and completed each request, where applicable.
 
-After completion:
+### ΑΠΟΘΗΚΗ
 
-```text
-Από: Maria
-Προς: ΜΑΝΑΒΙΚΟ
+-   Search the shared product database.
+-   View requests assigned to ΑΠΟΘΗΚΗ.
+-   Claim and process eligible requests.
+-   Complete requests.
 
-Εκτελέστηκε από: Kostas
+### ΜΑΝΑΒΙΚΟ
 
-Κατάσταση: ΟΛΟΚΛΗΡΩΘΗΚΕ
-```
+-   Search the shared product database.
+-   View requests assigned to ΜΑΝΑΒΙΚΟ.
+-   Claim and process eligible requests.
+-   Complete requests.
 
-The server must ensure that only **one employee can claim a request**.
+### ΨΥΓΕΙΟ
 
----
+-   Search the shared product database.
+-   View requests assigned to ΨΥΓΕΙΟ.
+-   Claim and process eligible requests.
+-   Complete requests.
 
-# Database Concept
+Department permissions must be enforced by the backend. Hiding a button
+or screen in the Android app is not sufficient security.
 
-The initial database structure will contain concepts such as:
+## Technology
 
-```text
-USERS
-PRODUCTS
-REQUESTS
-REQUEST_ITEMS
-```
+### Android App
 
-## USERS
+-   Android Studio
+-   Java
+-   Android Views
+-   XML layouts
+-   AndroidX / AppCompat
 
-Stores application user/profile information.
+### Backend and Data
 
-Authentication credentials are handled by Supabase Auth.
+-   Supabase
+-   PostgreSQL
+-   Supabase Authentication
+-   Supabase Storage, if needed
 
----
+## Initial Database Concepts
 
-## PRODUCTS
+The final schema will be designed before implementation. Expected
+concepts include:
 
-Example:
+-   **User profiles** --- internal employee identity, username, email,
+    approval and account status.
+-   **Registration codes** --- permanent code records and their current
+    assignment/availability.
+-   **Products** --- product code, description and product URL.
+-   **Requests** --- creator, destination department, status and
+    timestamps.
+-   **Request items** --- products and quantities within a request.
+-   **Audit/activity history** --- employee, department, action and
+    timestamp.
 
-```text
-product_id
-code
-description
-url
-```
+Historical activity must remain associated with the original internal
+employee identity, even if that employee's account is later deactivated
+and their registration code is reused.
 
-Example record:
+## Private Distribution and Updates
 
-```text
-code: 1273252
-description: Καρπούζι Εγχώριο
-url: ...
-```
+I-HUB is intended for private distribution and will not initially be
+published on Google Play.
 
----
+A future version may check for updates and notify employees when a newer
+APK is available. Android may still require user permission or
+confirmation to install an APK distributed outside Google Play.
 
-## REQUESTS
+## Current Development Status
 
-A request contains information such as:
+The project began as an Android UI skeleton, including login and
+registration screens. The requirements above describe the intended
+application; they should not be interpreted as features that are already
+implemented.
 
-```text
-request_id
-creator
-destination_department
-executor
-status
-created_at
-```
+Development should proceed in stages:
 
----
-
-## REQUEST_ITEMS
-
-Contains the products belonging to a request.
-
-Example:
-
-```text
-request_id
-product_id
-quantity
-```
-
-This allows one request to contain multiple products.
-
----
-
-# Planned Screens
-
-## 1. Login
-
-Current design:
-
-```text
-          I-HUB
-
-     Όνομα χρήστη
-
-        Κωδικός 👁
-
-```
+1.  Finalize the requirements and permissions.
+2.  Design the database and backend security rules.
+3.  Implement authentication, registration-code handling and
+    administrator approval.
+4.  Implement the shared product database and product lookup.
+5.  Implement department selection and request workflows.
+6.  Add audit history, testing and private distribution/update support.
