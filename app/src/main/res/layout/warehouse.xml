@@ -17,15 +17,84 @@
         android:textSize="40sp"
         android:layout_marginTop="40sp"/>
     <TextView
+        android:id="@+id/warehouseTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Αποθήκη"
         android:textSize="30sp"
-        android:textColor="@color/orange"
+        android:textColor="@color/attractivered"
         app:layout_constraintTop_toBottomOf="@+id/titleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"/>
-    />
+
+    <EditText
+        android:id="@+id/warehouseSearch"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="Αναζήτηση με κωδικό προϊόντος"
+        android:inputType="number"
+        android:singleLine="true"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@android:drawable/edit_text"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@id/warehouseTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ScrollView
+        android:id="@+id/fridgeRequestScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/warehouseSearch"
+        app:layout_constraintBottom_toTopOf="@+id/clearCompletedButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/warehouseRequestList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp" />
+
+    </ScrollView>
+
+
+    <Button
+        android:id="@+id/clearCompletedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Καθαρισμός ολοκληρωμένων"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/orange"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
